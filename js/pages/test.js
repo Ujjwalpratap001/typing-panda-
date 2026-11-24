@@ -17,7 +17,7 @@ export function render(root) {
   const cfg = h('div', { class: 'config-bar', role: 'toolbar', 'aria-label': 'Test configuration' });
   const stage = h('div');
   root.append(wrap); wrap.append(cfg, stage);
-  let typing = null, test = null, snapshot = null, showingResult = false, capsEl = null;
+  let typing = null, test = null, snapshot = null, showingResult = false, capsEl = null, soundBtn = null;
 
   function buildConfig() {
     cfg.innerHTML = '';
@@ -85,10 +85,11 @@ export function render(root) {
       onTick: (l, t) => live.tick(l, t, typing && typing.engine),
       onFinish: (eng, info) => finish(eng, info)
     });
+    soundBtn = h('button', { class: 'opt', type: 'button', 'aria-pressed': settings.soundOn, 'aria-label': settings.soundOn ? 'Turn sound off' : 'Turn sound on', onClick: () => setSetting('soundOn', !settings.soundOn) }, settings.soundOn ? '🔊 sound on' : '🔇 sound off');
     const controls = h('div', { class: 'test-controls' },
       h('button', { class: 'opt', onClick: () => newTest(false), 'aria-label': 'Restart test', title: 'Restart (Tab)' }, '↻ restart'),
       h('button', { class: 'opt', onClick: () => document.fullscreenElement ? document.exitFullscreen() : document.documentElement.requestFullscreen().catch(() => toast('Full screen is not available here', 'err')) }, '⛶ full screen'),
-      h('button', { class: 'opt', onClick: () => setSetting('soundOn', !settings.soundOn) }, settings.soundOn ? '🔊 sound on' : '🔇 sound off'),
+      soundBtn,
       h('button', { class: 'opt', onClick: () => M.focusModal() }, 'focus mode'),
       h('button', { class: 'opt', onClick: () => M.shortcutsModal() }, '⌨ shortcuts'));
     stage.append(controls);
@@ -124,7 +125,7 @@ export function render(root) {
   wrap.addEventListener('mousemove', onMove);
   const onRestart = () => newTest(false);
   document.addEventListener('panda:restart', onRestart);
-  const off = onSettings(k => { if (NON_TEST.has(k)) { if (k === 'soundOn') buildConfig(); return; } buildConfig(); if (!showingResult || k === '*' || k === 'mode') newTest(false); });
+  const off = onSettings(k => { if (NON_TEST.has(k)) { if (k === 'soundOn' && soundBtn) { soundBtn.textContent = settings.soundOn ? '🔊 sound on' : '🔇 sound off'; soundBtn.setAttribute('aria-pressed', String(!!settings.soundOn)); soundBtn.setAttribute('aria-label', settings.soundOn ? 'Turn sound off' : 'Turn sound on'); } return; } buildConfig(); if (!showingResult || k === '*' || k === 'mode') newTest(false); });
   buildConfig(); newTest(false);
   return () => { document.removeEventListener('keydown', onKey); document.removeEventListener('keyup', onKey); document.removeEventListener('panda:restart', onRestart); off(); typing && typing.destroy(); };
 }
