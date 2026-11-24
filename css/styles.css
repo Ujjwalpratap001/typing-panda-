@@ -508,7 +508,19 @@ body.reduce-motion *, body.reduce-motion *::before, body.reduce-motion *::after 
 }
 
 
-/* AP Creative Studio ad temporarily hidden until the original full-resolution artwork is hosted. */
+/* AP Creative Studio advertisement — temporary JPG until the original artwork is uploaded. */
 .result-ad-slot {
-  display: none !important;
+  display: block !important;
+  width: min(160px, 100%);
+  margin: 1.5rem auto;
+  overflow: hidden;
+  border-radius: 10px;
+  line-height: 0;
+}
+
+.result-ad-slot img {
+  display: block;
+  width: 100%;
+  height: auto;
+  object-fit: contain;
 }
