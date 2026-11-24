@@ -1,4 +1,6 @@
-# Typing Panda 🐼 — Practice. Improve. Type Faster.
+# 🐼 Typing Panda
+
+🌐 **[Open Typing Panda — Live Website](https://ujjwalpratap001.github.io/typing-panda-/)**
 
 A free typing-practice website with the **Electric Blue `#1A4DFF` · Neon Lime `#C6FF00` · Deep Navy `#050D2E`** visual identity.
 Plain HTML + CSS + JavaScript (ES modules) — **no build step**. Optional Firebase for accounts, cloud sync, leaderboards and friends.
@@ -43,6 +45,7 @@ js/results.js       result building, validation, PBs, XP, streaks    js/replay.j
 js/settings.js      typed settings schema                            js/commands.js   command palette
 js/backend.js       Firebase wrapper (inactive until configured)     js/pages/*       one file per page
 ```
+
 Engine unit tests: `node tests/engine.test.mjs`.
 
 ## Honest limitations
