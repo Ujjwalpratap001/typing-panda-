@@ -70,14 +70,16 @@ export function renderResult(root, r, ctx = {}) {
     savedBtn = h('button', { class: 'btn', disabled: !!ctx.saved || r.failed, onClick: () => { addLocalResult(r); if (cloud.user) uploadResult(r); savedBtn.textContent = 'Saved ✓'; savedBtn.disabled = true; toast('Result saved'); } }, ctx.saved ? 'Saved ✓' : 'Save result'));
   root.append(bar);
 
-  if (S.showCharts && r.labels && r.labels.length) {
-    const c1 = h('div', { class: 'card' }, h('h3', {}, 'Speed over time'));
-    root.append(c1);
-    chart(c1, { labels: r.labels, xTitle: 'sec', ref: best && best.wpm, refLabel: 'personal best', series: [
-      { name: 'WPM', data: r.wpmHistory, color: '--main', unit: '' }, { name: 'Raw', data: r.rawHistory, color: '#6F8BFF' }, { name: 'Errors', data: r.errHistory, color: '--err', kind: 'dots', axis: 'r', digits: 0 }] });
+  // Additional analytics stay collapsed until the user asks to see more.
+  const more = h('div', { class: 'result-more hidden', id: 'result-more' });
+  const hasMore = S.showCharts && r.labels && r.labels.length;
+  if (hasMore) {
     const grid = h('div', { class: 'two', style: 'margin-top:1rem' });
-    const c2 = h('div', { class: 'card' }, h('h3', {}, 'Burst speed per word')), c3 = h('div', { class: 'card' }, h('h3', {}, 'Accuracy over time')), c4 = h('div', { class: 'card', style: 'grid-column:1/-1' }, h('h3', {}, 'Character performance'), h('p', { class: 'muted' }, 'Bars: accuracy per expected letter. Dots: average milliseconds between keys (right axis).'));
-    grid.append(c2, c3, c4); root.append(grid);
+    const c2 = h('div', { class: 'card' }, h('h3', {}, 'Burst speed per word'));
+    const c3 = h('div', { class: 'card' }, h('h3', {}, 'Accuracy over time'));
+    const c4 = h('div', { class: 'card', style: 'grid-column:1/-1' }, h('h3', {}, 'Character performance'), h('p', { class: 'muted' }, 'Bars: accuracy per expected letter. Dots: average milliseconds between keys (right axis).'));
+    grid.append(c2, c3, c4);
+    more.append(grid);
     const bursts = (r.burstHistory || []).map(v => v);
     chart(c2, { labels: bursts.map((_, i) => i + 1), xTitle: 'word', series: [{ name: 'Burst', data: bursts, color: '#6F8BFF', kind: 'bars' }] });
     chart(c3, { labels: r.labels, xTitle: 'sec', series: [{ name: 'Accuracy', data: r.accHistory, color: '--main', unit: '%' }] });
@@ -100,5 +102,14 @@ export function renderResult(root, r, ctx = {}) {
     h('button', { class: 'btn sm', onClick: () => copyText(ws.map(w => w.target).join(' ')) }, 'Copy all words'), h('button', { class: 'btn sm', onClick: () => copyText(wrong.join(' ')) }, 'Copy incorrect words'),
     h('button', { class: 'btn sm', onClick: () => copyText(slow.join(' ')) }, 'Copy slow words'), h('button', { class: 'btn sm', onClick: () => copyText([...new Set([...wrong, ...slow])].join(' ')) }, 'Copy practice words'));
   if (ws.length) { root.append(h('div', { class: 'card', style: 'margin-top:1rem' }, h('h3', {}, 'Words & error history'), tabs, panel, copyRow)); show('Words'); }
+  if (hasMore) {
+    const toggle = h('button', { class: 'btn', style: 'display:flex;margin:1rem auto 0', 'aria-expanded': 'false', 'aria-controls': 'result-more', onClick: () => {
+      const opening = more.classList.contains('hidden');
+      more.classList.toggle('hidden', !opening);
+      toggle.textContent = opening ? 'Show less' : 'Show more';
+      toggle.setAttribute('aria-expanded', String(opening));
+    } }, 'Show more');
+    root.append(toggle, more);
+  }
   return { savedBtn };
 }
