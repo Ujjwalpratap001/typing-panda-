@@ -111,5 +111,12 @@ export function renderResult(root, r, ctx = {}) {
     } }, 'Show more');
     root.append(toggle, more);
   }
+  const adSlot = h('aside', { class: 'result-ad-slot', 'aria-label': 'Advertisement space' },
+    h('span', { class: 'ad-kicker' }, 'ADVERTISEMENT'),
+    h('div', { class: 'ad-slot-art' }, '✦'),
+    h('strong', {}, 'Your Brand Here'),
+    h('p', {}, 'Reach learners while they practice.'),
+    h('span', { class: 'ad-slot-size' }, '160 × 600'));
+  root.append(adSlot);
   return { savedBtn };
 }
