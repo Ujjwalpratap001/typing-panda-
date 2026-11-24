@@ -112,7 +112,7 @@ export function renderResult(root, r, ctx = {}) {
     root.append(toggle, more);
   }
   const adSlot = h('a', { class: 'result-ad-slot', href: 'https://ap-creativestudio.vercel.app/', target: '_blank', rel: 'noopener noreferrer', 'aria-label': 'Visit AP Creative Studio — advertisement' },
-    h('img', { src: 'assets/ap-creative-studio-ad.jpg', alt: 'AP Creative Studio — Turn Your Ideas Into Impact. Portfolio websites, professional resumes, poster design and business websites.' }));
+    h('img', { src: 'assets/ap-creative-studio-recovered.jpg', alt: 'AP Creative Studio — Turn Your Ideas Into Impact. Portfolio websites, professional resumes, poster design and business websites.' }));
   root.append(adSlot);
   return { savedBtn };
 }
