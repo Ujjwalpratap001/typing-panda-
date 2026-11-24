@@ -508,19 +508,31 @@ body.reduce-motion *, body.reduce-motion *::before, body.reduce-motion *::after 
 }
 
 
-/* AP Creative Studio advertisement — temporary JPG until the original artwork is uploaded. */
+/* AP Creative Studio skyscraper ad — positioned in the right-side result-page rail. */
 .result-ad-slot {
-  display: block !important;
-  width: min(160px, 100%);
-  margin: 1.5rem auto;
+  display: flex !important;
+  position: fixed;
+  top: 147px;
+  right: max(24px, calc((100vw - 1630px) / 2));
+  z-index: 5;
+  width: 160px;
+  height: 600px;
+  margin: 0;
+  align-items: center;
+  justify-content: center;
   overflow: hidden;
-  border-radius: 10px;
+  border-radius: 8px;
   line-height: 0;
 }
 
 .result-ad-slot img {
   display: block;
   width: 100%;
-  height: auto;
+  height: 100%;
   object-fit: contain;
+  object-position: center;
+}
+
+@media (max-width: 1300px) {
+  .result-ad-slot { display: none !important; }
 }
