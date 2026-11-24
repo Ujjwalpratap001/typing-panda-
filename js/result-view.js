@@ -12,7 +12,7 @@ const FAIL = { word: 'Expert difficulty: a word was incorrect', letter: 'Master 
 const modeLabel = r => ({ time: `time ${r.modeValue}s`, words: `${r.modeValue} words`, quote: `quote (${r.modeValue})`, zen: 'zen', custom: 'custom text' }[r.mode] || r.mode);
 
 export function resultText(r) {
-  return `Typing Panda — ${formatSpeed(r.wpm)} ${unitLabel()} · ${r.accuracy.toFixed(0)}% accuracy · ${r.consistency.toFixed(0)}% consistency · ${modeLabel(r)}${r.punctuation ? ' · punctuation' : ''}${r.numbers ? ' · numbers' : ''} (raw ${formatSpeed(r.rawWpm)}, ${r.duration}s)`;
+  return `Typing Panda — ${formatSpeed(r.wpm)} ${unitLabel()} · ${r.accuracy.toFixed(0)}% accuracy · ${r.consistency.toFixed(0)}% consistency · ${modeLabel(r)}${r.punctuation ? ' · punctuation' : ''}${r.numbers ? ' · numbers' : ''} (raw ${formatSpeed(r.rawWpm)}, ${Number(r.duration).toFixed(2)}s)`;
 }
 
 function resultImage(r) {
@@ -43,7 +43,7 @@ export function renderResult(root, r, ctx = {}) {
     h('div', { class: 'big-wpm' }, formatSpeed(r.wpm), h('small', {}, unitLabel())),
     h('div', { class: 'mini-stats' },
       stat(r.accuracy.toFixed(d) + '%', 'accuracy', pb.acc), stat(formatSpeed(r.rawWpm), 'raw ' + unitLabel()), stat(r.consistency.toFixed(d) + '%', 'consistency', pb.consistency),
-      stat(formatSpeed(r.burst), 'highest burst', pb.burst), stat(r.duration + 's', 'time'), (() => { const e = stat(`${r.correctChars}/${r.incorrectChars}/${r.extraChars}/${r.missedChars}`, 'correct / wrong / extra / missed'); e.className = 'w2'; return e; })(),
+      stat(formatSpeed(r.burst), 'highest burst', pb.burst), stat(Number(r.duration).toFixed(2) + 's', 'time'), (() => { const e = stat(`${r.correctChars}/${r.incorrectChars}/${r.extraChars}/${r.missedChars}`, 'correct / wrong / extra / missed'); e.className = 'w2'; return e; })(),
       stat(r.typedChars, 'characters typed'), stat(modeLabel(r), 'test'), stat(getWordset(r.wordset).lang, 'language'))));
   const sub = h('p', { class: 'muted', style: 'margin:.8rem 0 0' }, `${fmtDate(r.createdAt)}${r.quote ? ` · “${r.quote.author}”, ${r.quote.source}` : ''}${r.difficulty !== 'normal' ? ' · ' + r.difficulty : ''}${r.focusLoss ? ` · lost focus ${r.focusLoss}×` : ''}`);
   root.append(hero, sub);
