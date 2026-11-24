@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8"><title>Typing Panda</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script>
+  // GitHub Pages serves this file for unknown paths such as /settings or /profile/ujjwal.
+  // We turn the path into a hash route and open the app, so every URL works on refresh.
+  (function () {
+    var host = location.hostname, parts = location.pathname.split('/').filter(Boolean);
+    var base = host.endsWith('github.io') && parts.length ? '/' + parts.shift() : '';
+    var route = '/' + parts.join('/');
+    var known = /^\/(learn|leaderboards|about|settings|login|account|account-settings|profile|friends)(\/|$)/.test(route);
+    location.replace(base + '/index.html#' + (known ? route : '/404') + location.search);
+  })();
+</script></head>
+<body style="background:#050D2E;color:#fff;font-family:sans-serif;padding:2rem">Redirecting…</body></html>
