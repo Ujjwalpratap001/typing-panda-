@@ -67,6 +67,7 @@ export function render(root) {
     if (typing) { typing.destroy(); typing = null; }
     showingResult = false; wrap.classList.remove('focus-mode-active'); cfg.style.display = '';
     stage.innerHTML = '';
+    stage.classList.remove('result-stage');
     if (repeat && snapshot) test = { ...snapshot, words: snapshot.words.slice() };
     else test = buildTest();
     if (settings.mode === 'quote' && test.quote) settings.quoteId = settings.repeatQuotes ? test.quote.id : '';
@@ -106,7 +107,7 @@ export function render(root) {
     if (!r.failed && r.duration < 1) { newTest(false); return; }
     const out = await saveFinishedResult(r);
     if (!wrap.isConnected) return;
-    showingResult = true; cfg.style.display = 'none'; stage.innerHTML = '';
+    showingResult = true; cfg.style.display = 'none'; stage.innerHTML = ''; stage.classList.add('result-stage');
     renderResult(stage, r, { pb: out.pb, saved: out.saved, onNext: () => newTest(false), onRepeat: () => newTest(true) });
     window.scrollTo({ top: 0 });
   }
