@@ -3,17 +3,20 @@
 A free typing-practice website with the **Electric Blue `#1A4DFF` · Neon Lime `#C6FF00` · Deep Navy `#050D2E`** visual identity.
 Plain HTML + CSS + JavaScript (ES modules) — **no build step**. Optional Firebase for accounts, cloud sync, leaderboards and friends.
 
-## 1. Put it online with GitHub Pages (≈ 2 minutes)
+## 1. Deploy this repository with GitHub Pages
 
-1. Create a new GitHub repository (e.g. `typing-panda`).
-2. Upload **everything inside this folder** (so `index.html` is at the top level of the repo). Commit.
-3. Repo → **Settings → Pages → Build and deployment → Deploy from a branch → `main` / `(root)`** → Save.
-4. After a minute your site is live at `https://YOUR-NAME.github.io/typing-panda/`.
+The project files are already in the repository root. No ZIP extraction, npm install, or build command is required.
 
-It works immediately in **guest mode** (settings, results, presets and lesson progress are saved in the visitor's browser).
-Routes use `#/…` (e.g. `/#/settings`) so refreshing any page works on GitHub Pages; `404.html` also redirects plain paths such as `/settings`.
+1. Open this repository's **Settings → Pages**.
+2. Under **Build and deployment**, choose **Deploy from a branch**.
+3. Select branch **main** and folder **/(root)**, then click **Save**.
+4. Wait for GitHub Pages to publish the site.
 
-To run locally: `python3 -m http.server 8000` in this folder, then open http://localhost:8000 (ES modules need http, not `file://`).
+Expected URL: https://ujjwalpratap001.github.io/typing-panda-/
+
+The site runs immediately in **guest mode** (settings, results, presets and lesson progress are saved in the visitor's browser). Routes use hash URLs (for example, `/#/settings`) so refreshing app pages works on GitHub Pages. The `.nojekyll` file is included.
+
+To run locally: `python3 -m http.server 8000` in this folder, then open http://localhost:8000 (ES modules need HTTP, not `file://`).
 
 ## 2. Turn on accounts, leaderboards, friends (Firebase)
 
