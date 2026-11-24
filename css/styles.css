@@ -507,3 +507,33 @@ body.reduce-motion *, body.reduce-motion *::before, body.reduce-motion *::after 
   }
 }
 
+
+/* ===== Result page advertisement placeholder ===== */
+.result-ad-slot {
+  position: absolute;
+  z-index: 2;
+  top: 2.2rem;
+  right: -235px;
+  width: 160px;
+  height: 600px;
+  box-sizing: border-box;
+  padding: 1rem .8rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: .9rem;
+  text-align: center;
+  border: 1px dashed rgba(198, 255, 0, .42);
+  border-radius: 16px;
+  color: var(--text);
+  background: linear-gradient(160deg, rgba(198,255,0,.07), rgba(111,139,255,.08) 55%, rgba(5,13,46,.35));
+}
+.result-ad-slot .ad-kicker { font-size: .62rem; letter-spacing: .16em; color: var(--sub); font-weight: 800; }
+.result-ad-slot .ad-slot-art { width: 58px; height: 58px; display: grid; place-items: center; border-radius: 18px; background: rgba(198,255,0,.12); color: var(--main); font-size: 2rem; }
+.result-ad-slot strong { font: 800 1.15rem var(--font-head); color: var(--text); }
+.result-ad-slot p { margin: 0; color: var(--sub); font-size: .82rem; line-height: 1.55; }
+.result-ad-slot .ad-slot-size { margin-top: .6rem; color: var(--sub); font: 600 .7rem var(--font-mono); }
+@media (max-width: 1499px) {
+  .result-ad-slot { display: none; }
+}
