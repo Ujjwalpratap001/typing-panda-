@@ -509,6 +509,7 @@ body.reduce-motion *, body.reduce-motion *::before, body.reduce-motion *::after 
 
 
 /* ===== Result page advertisement placeholder ===== */
+.result-stage { position: relative; }
 .result-ad-slot {
   position: absolute;
   z-index: 2;
