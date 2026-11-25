@@ -48,10 +48,44 @@ export async function render(root) {
     chart(a1, { labels: days.map(d => d[0]), series: [{ name: 'Tests', data: days.map(d => d[1].tests), color: '--main', kind: 'bars', digits: 0 }] });
     chart(a2, { labels: weeks.map(d => d[0]), series: [{ name: 'Tests', data: weeks.map(d => d[1]), color: '#6F8BFF', kind: 'bars', digits: 0 }] });
     chart(a3, { labels: months.map(d => d[0]), series: [{ name: 'Tests', data: months.map(d => d[1]), color: '--main', kind: 'bars', digits: 0 }] });
-    // heat calendar (26 weeks)
-    const heat = h('div', { class: 'heat', 'aria-label': 'Activity calendar' }); const start = new Date(now); start.setDate(start.getDate() - 26 * 7 + 1); start.setDate(start.getDate() - start.getDay());
-    for (let d = new Date(start); d <= now; d.setDate(d.getDate() + 1)) { const v = st.days[dayKey(d)]; const n = v ? v.tests : 0; heat.append(h('i', { class: n ? 'l' + Math.min(4, Math.ceil(n / 2)) : '', title: `${dayKey(d)}: ${n} tests` })); }
-    wrap.append(h('div', { class: 'card', style: 'margin-top:1rem' }, h('h3', {}, 'Activity calendar'), heat));
+    // Monthly activity calendar: one animated mini-calendar per month (last 12 months).
+    const monthCards = h('div', { class: 'activity-months', 'aria-label': 'Monthly activity calendars' });
+    const weekdayNames = ['S', 'M', 'T', 'W', 'T', 'F', 'S'];
+    for (let offset = 11; offset >= 0; offset--) {
+      const first = new Date(now.getFullYear(), now.getMonth() - offset, 1);
+      const year = first.getFullYear(), month = first.getMonth();
+      const monthKey = year + '-' + String(month + 1).padStart(2, '0');
+      const daysInMonth = new Date(year, month + 1, 0).getDate();
+      const monthEntries = Object.entries(st.days).filter(([k]) => k.startsWith(monthKey));
+      const totalTests = monthEntries.reduce((sum, [, value]) => sum + (value.tests || 0), 0);
+      const activeDays = monthEntries.filter(([, value]) => value.tests > 0).length;
+      const monthGrid = h('div', { class: 'activity-month-grid' });
+      weekdayNames.forEach(day => monthGrid.append(h('span', { class: 'activity-weekday', 'aria-hidden': 'true' }, day)));
+      for (let blank = 0; blank < first.getDay(); blank++) monthGrid.append(h('span', { class: 'activity-day empty', 'aria-hidden': 'true' }));
+      for (let day = 1; day <= daysInMonth; day++) {
+        const date = new Date(year, month, day), key = dayKey(date);
+        const entry = st.days[key], count = entry ? entry.tests : 0;
+        const future = date > now;
+        const level = count ? Math.min(4, Math.ceil(count / 2)) : 0;
+        monthGrid.append(h('span', {
+          class: 'activity-day' + (level ? ' l' + level : '') + (future ? ' future' : ''),
+          title: future ? key : key + ': ' + count + ' tests',
+          'aria-label': future ? key : key + ': ' + count + ' tests',
+          style: '--day-index:' + (day - 1)
+        }, String(day)));
+      }
+      const monthName = first.toLocaleDateString(undefined, { month: 'long', year: 'numeric' });
+      monthCards.append(h('article', { class: 'activity-month-card' },
+        h('div', { class: 'activity-month-head' },
+          h('div', {}, h('h4', {}, monthName), h('small', {}, activeDays + ' active days')),
+          h('strong', {}, totalTests + ' tests')),
+        monthGrid));
+    }
+    const activityLegend = h('div', { class: 'activity-legend' },
+      h('span', {}, 'Less'), ...[0, 1, 2, 3, 4].map(level => h('i', { class: level ? 'l' + level : '' })), h('span', {}, 'More'));
+    wrap.append(h('section', { class: 'card activity-calendar-card', style: 'margin-top:1rem' },
+      h('div', { class: 'row spread activity-calendar-title' }, h('div', {}, h('h3', {}, 'Activity calendar'), h('p', { class: 'muted' }, 'Your typing journey, month by month')), activityLegend),
+      monthCards));
     // language & mode & personal bests
     const by = (f) => { const m = {}; ok.forEach(r => { const k = f(r); (m[k] = m[k] || { n: 0, best: 0, sum: 0 }); m[k].n++; m[k].best = Math.max(m[k].best, r.wpm); m[k].sum += r.wpm; }); return m; };
     const tableOf = (m, head) => h('div', { class: 'table-wrap' }, h('table', {}, h('thead', {}, h('tr', {}, ['', 'Tests', 'Avg', 'Best'].map((x, i) => h('th', {}, i ? x : head)))), h('tbody', {}, Object.entries(m).sort((a, b) => b[1].n - a[1].n).map(([k, v]) => h('tr', {}, h('td', {}, k), h('td', {}, v.n), h('td', {}, formatSpeed(v.sum / v.n)), h('td', {}, formatSpeed(v.best)))))));
