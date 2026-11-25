@@ -68,7 +68,7 @@ export async function render(root) {
       const startDate = new Date(year, 0, 1);
       startDate.setDate(startDate.getDate() - startDate.getDay());
       const endDate = new Date(year, 11, 31);
-      const weekCount = Math.ceil((endDate - startDate) / 86400000 / 7) + 1;
+      const weekCount = Math.floor((endDate - startDate) / 86400000 / 7) + 1;
       const yearDays = Object.entries(st.days).filter(([key]) => key.startsWith(year + '-'));
       const totalTests = yearDays.reduce((sum, [, value]) => sum + (value.tests || 0), 0);
       const totalWords = yearDays.reduce((sum, [, value]) => sum + (value.words || 0), 0);
