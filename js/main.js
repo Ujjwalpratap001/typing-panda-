@@ -36,7 +36,7 @@ function renderHeader() {
     };
   } else menu.append(h('a', { href: '#/login', class: 'btn primary sm' }, 'Login'));
   hd.append(h('div', { class: 'wrap nav' },
-    h('a', { href: '#/', class: 'brand', 'aria-label': 'Typing Panda home' }, h('img', { src: 'assets/logo.svg', alt: '' }), h('span', {}, 'Typing ', h('b', {}, 'Panda'))),
+    h('a', { href: '#/', class: 'brand', 'aria-label': 'Typing Panda home' }, h('span', { class: 'brand-icon-ring' }, h('img', { src: 'assets/logo.svg', alt: '' })), h('span', { class: 'brand-wordmark' }, 'Typing ', h('b', {}, 'Panda'))),
     h('nav', { class: 'nav-links', 'aria-label': 'Main' }, link('/', 'Practice', 'practice'), link('/learn', 'Learn', 'learn'), link('/leaderboards', 'Leaderboards', 'leaderboards'), link('/about', 'About', 'about')),
     h('div', { class: 'nav-end' },
       h('a', { href: '#/account', class: 'lvl', style: 'text-decoration:none', title: `${lv.xp} XP — ${lv.pct}% to next level` }, 'Lv ' + lv.level),
