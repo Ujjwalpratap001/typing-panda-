@@ -65,7 +65,7 @@ export async function render(root) {
       for (let day = 1; day <= daysInMonth; day++) {
         const date = new Date(year, month, day), key = dayKey(date);
         const entry = st.days[key], count = entry ? entry.tests : 0;
-        const future = date > now;
+        const future = key > dayKey(now);
         const level = count ? Math.min(4, Math.ceil(count / 2)) : 0;
         monthGrid.append(h('span', {
           class: 'activity-day' + (level ? ' l' + level : '') + (future ? ' future' : ''),
