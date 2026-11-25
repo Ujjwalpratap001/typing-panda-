@@ -48,53 +48,89 @@ export async function render(root) {
     chart(a1, { labels: days.map(d => d[0]), series: [{ name: 'Tests', data: days.map(d => d[1].tests), color: '--main', kind: 'bars', digits: 0 }] });
     chart(a2, { labels: weeks.map(d => d[0]), series: [{ name: 'Tests', data: weeks.map(d => d[1]), color: '#6F8BFF', kind: 'bars', digits: 0 }] });
     chart(a3, { labels: months.map(d => d[0]), series: [{ name: 'Tests', data: months.map(d => d[1]), color: '--main', kind: 'bars', digits: 0 }] });
-    // GitHub-style contribution heatmaps, separated month by month.
-    const monthCards = h('div', { class: 'activity-months', 'aria-label': 'Monthly typing activity calendars' });
-    const weekdayLabels = ['S', 'M', 'T', 'W', 'T', 'F', 'S'];
-    for (let offset = 11; offset >= 0; offset--) {
-      const first = new Date(now.getFullYear(), now.getMonth() - offset, 1);
-      const year = first.getFullYear(), month = first.getMonth();
-      const monthKey = year + '-' + String(month + 1).padStart(2, '0');
-      const daysInMonth = new Date(year, month + 1, 0).getDate();
-      const monthEntries = Object.entries(st.days).filter(([key]) => key.startsWith(monthKey));
-      const totalTests = monthEntries.reduce((sum, [, value]) => sum + (value.tests || 0), 0);
-      const activeDays = monthEntries.filter(([, value]) => value.tests > 0).length;
-      const weekCount = Math.ceil((first.getDay() + daysInMonth) / 7);
-      const heatmap = h('div', { class: 'activity-month-heatmap' });
-      const weekdayColumn = h('div', { class: 'activity-week-labels', 'aria-hidden': 'true' });
-      weekdayLabels.forEach((day, index) => weekdayColumn.append(h('span', { class: 'activity-weekday' }, [0, 2, 4, 6].includes(index) ? day : '')));
-      const monthGrid = h('div', {
-        class: 'activity-month-grid',
-        style: 'grid-template-columns:repeat(' + weekCount + ', 13px);grid-template-rows:repeat(7, 13px)'
-      });
-      for (let day = 1; day <= daysInMonth; day++) {
-        const date = new Date(year, month, day), key = dayKey(date);
-        const entry = st.days[key], count = entry ? entry.tests : 0;
-        const future = key > dayKey(now);
-        const level = count ? Math.min(4, Math.ceil(count / 2)) : 0;
-        const week = Math.floor((first.getDay() + day - 1) / 7);
-        monthGrid.append(h('span', {
-          class: 'activity-day' + (level ? ' l' + level : '') + (future ? ' future' : ''),
-          title: future ? key : key + ': ' + count + ' typing tests',
-          'aria-label': future ? key : key + ': ' + count + ' typing tests',
-          style: 'grid-column:' + (week + 1) + ';grid-row:' + (date.getDay() + 1) + ';--day-index:' + (day - 1)
-        }));
+    // GitHub-style annual contribution graph.
+    const availableYears = [...new Set([now.getFullYear(), ...Object.keys(st.days).map(k => Number(k.slice(0, 4)))])].sort((a, b) => b - a);
+    const calendar = h('section', { class: 'card activity-calendar-card', style: 'margin-top:1rem' });
+    const calendarHead = h('div', { class: 'activity-calendar-head' });
+    const calendarSummary = h('div', { class: 'activity-calendar-summary' });
+    const yearSelect = h('select', { class: 'activity-year-select', 'aria-label': 'Select activity year' },
+      availableYears.map(y => h('option', { value: String(y) }, 'Year: ' + y)));
+    const graphWrap = h('div', { class: 'activity-graph-scroll', tabindex: '0', 'aria-label': 'Scrollable annual typing activity graph' });
+    const feed = h('div', { class: 'activity-feed' });
+    calendarHead.append(h('div', {}, h('h3', {}, 'Typing activity'), calendarSummary), yearSelect);
+    calendar.append(calendarHead, graphWrap,
+      h('div', { class: 'activity-legend' }, h('span', {}, 'Less'), ...[0,1,2,3,4].map(level => h('i', { class: level ? 'l' + level : '' })), h('span', {}, 'More')),
+      h('div', { class: 'activity-feed-heading' }, h('h3', {}, 'Contribution activity'), h('span', { class: 'muted' }, 'Monthly breakdown')),
+      feed);
+    wrap.append(calendar);
+
+    function drawAnnualActivity(year) {
+      const startDate = new Date(year, 0, 1);
+      startDate.setDate(startDate.getDate() - startDate.getDay());
+      const endDate = new Date(year, 11, 31);
+      const weekCount = Math.ceil((endDate - startDate) / 86400000 / 7) + 1;
+      const yearDays = Object.entries(st.days).filter(([key]) => key.startsWith(year + '-'));
+      const totalTests = yearDays.reduce((sum, [, value]) => sum + (value.tests || 0), 0);
+      const totalWords = yearDays.reduce((sum, [, value]) => sum + (value.words || 0), 0);
+      const activeDays = yearDays.filter(([, value]) => value.tests > 0).length;
+      calendarSummary.textContent = totalTests.toLocaleString() + ' typing tests · ' + totalWords.toLocaleString() + ' words typed · ' + activeDays + ' active days';
+      graphWrap.innerHTML = '';
+
+      const monthLabels = h('div', { class: 'activity-month-labels', style: 'grid-template-columns:repeat(' + weekCount + ', 13px)' });
+      for (let month = 0; month < 12; month++) {
+        const first = new Date(year, month, 1);
+        const week = Math.floor((first - startDate) / 86400000 / 7);
+        monthLabels.append(h('span', { style: 'grid-column:' + (week + 1) }, first.toLocaleDateString(undefined, { month: 'short' })));
       }
-      heatmap.append(weekdayColumn, monthGrid);
-      const monthName = first.toLocaleDateString(undefined, { month: 'long', year: 'numeric' });
-      monthCards.append(h('article', { class: 'activity-month-card' },
-        h('div', { class: 'activity-month-head' },
-          h('div', {}, h('h4', {}, monthName), h('small', {}, activeDays + ' active days')),
-          h('strong', {}, totalTests + ' tests')),
-        heatmap));
+      const graphBody = h('div', { class: 'activity-graph-body' });
+      const weekdayLabels = h('div', { class: 'activity-weekday-labels' });
+      ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'].forEach((day, index) => weekdayLabels.append(h('span', {}, [1,3,5].includes(index) ? day : '')));
+      const grid = h('div', { class: 'activity-year-grid', style: 'grid-template-columns:repeat(' + weekCount + ', 13px)' });
+      const todayKey = dayKey(now);
+      for (let offset = 0; offset < weekCount * 7; offset++) {
+        const date = new Date(startDate); date.setDate(startDate.getDate() + offset);
+        const key = dayKey(date), inYear = date.getFullYear() === year;
+        const entry = inYear ? (st.days[key] || {}) : {};
+        const tests = entry.tests || 0, words = entry.words || 0;
+        const count = tests;
+        const level = count ? Math.min(4, Math.ceil(count / 2)) : 0;
+        const week = Math.floor(offset / 7), weekday = date.getDay();
+        const cell = h('span', {
+          class: 'activity-year-cell' + (level ? ' l' + level : '') + (!inYear ? ' outside-year' : ''),
+          title: inYear ? (tests + ' typing tests · ' + words.toLocaleString() + ' words on ' + date.toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })) : '',
+          'aria-label': inYear ? (tests + ' typing tests and ' + words + ' words on ' + key) : '',
+          style: 'grid-column:' + (week + 1) + ';grid-row:' + (weekday + 1) + ';--cell-index:' + offset
+        });
+        grid.append(cell);
+      }
+      graphBody.append(weekdayLabels, grid);
+      graphWrap.append(monthLabels, graphBody);
+
+      const monthRows = [];
+      for (let month = 11; month >= 0; month--) {
+        const prefix = year + '-' + String(month + 1).padStart(2, '0');
+        const entries = yearDays.filter(([key]) => key.startsWith(prefix));
+        const tests = entries.reduce((sum, [, value]) => sum + (value.tests || 0), 0);
+        const words = entries.reduce((sum, [, value]) => sum + (value.words || 0), 0);
+        const active = entries.filter(([, value]) => value.tests > 0).length;
+        const best = ok.filter(r => new Date(r.createdAt).getFullYear() === year && new Date(r.createdAt).getMonth() === month).reduce((max, r) => Math.max(max, r.wpm || 0), 0);
+        if (tests) monthRows.push({ month, tests, words, active, best });
+      }
+      feed.innerHTML = '';
+      if (!monthRows.length) feed.append(h('p', { class: 'muted activity-empty' }, 'No typing activity recorded for ' + year + ' yet. Complete a test and your activity will appear here.'));
+      monthRows.forEach(row => {
+        const label = new Date(year, row.month, 1).toLocaleDateString(undefined, { month: 'long', year: 'numeric' });
+        feed.append(h('article', { class: 'activity-feed-month' },
+          h('div', {}, h('strong', {}, label), h('small', {}, row.active + ' active days')),
+          h('div', { class: 'activity-feed-stats' },
+            h('span', {}, row.tests.toLocaleString() + ' tests'),
+            h('span', {}, row.words.toLocaleString() + ' words'),
+            h('span', {}, row.best ? 'Best ' + formatSpeed(row.best) : '—'))));
+      });
     }
-    const activityLegend = h('div', { class: 'activity-legend' },
-      h('span', {}, 'Less'), ...[0, 1, 2, 3, 4].map(level => h('i', { class: level ? 'l' + level : '' })), h('span', {}, 'More'));
-    wrap.append(h('section', { class: 'card activity-calendar-card', style: 'margin-top:1rem' },
-      h('div', { class: 'row spread activity-calendar-title' },
-        h('div', {}, h('h3', {}, 'Activity calendar'), h('p', { class: 'muted' }, 'Your typing contributions, month by month')),
-        activityLegend),
-      monthCards));
+    yearSelect.value = String(now.getFullYear());
+    yearSelect.addEventListener('change', () => drawAnnualActivity(Number(yearSelect.value)));
+    drawAnnualActivity(now.getFullYear());
     // language & mode & personal bests
     const by = (f) => { const m = {}; ok.forEach(r => { const k = f(r); (m[k] = m[k] || { n: 0, best: 0, sum: 0 }); m[k].n++; m[k].best = Math.max(m[k].best, r.wpm); m[k].sum += r.wpm; }); return m; };
     const tableOf = (m, head) => h('div', { class: 'table-wrap' }, h('table', {}, h('thead', {}, h('tr', {}, ['', 'Tests', 'Avg', 'Best'].map((x, i) => h('th', {}, i ? x : head)))), h('tbody', {}, Object.entries(m).sort((a, b) => b[1].n - a[1].n).map(([k, v]) => h('tr', {}, h('td', {}, k), h('td', {}, v.n), h('td', {}, formatSpeed(v.sum / v.n)), h('td', {}, formatSpeed(v.best)))))));
