@@ -536,3 +536,40 @@ body.reduce-motion *, body.reduce-motion *::before, body.reduce-motion *::after 
 @media (max-width: 1300px) {
   .result-ad-slot { display: none !important; }
 }
+
+
+/* ===== Monthly activity calendar ===== */
+.activity-calendar-card { overflow: hidden; }
+.activity-calendar-title { align-items: flex-start; gap: .8rem; margin-bottom: 1.15rem; }
+.activity-calendar-title p { margin: .25rem 0 0; font-size: .82rem; }
+.activity-legend { display: flex; align-items: center; gap: .32rem; color: var(--sub); font-size: .7rem; white-space: nowrap; }
+.activity-legend i { width: 11px; height: 11px; display: block; border-radius: 3px; background: var(--card-b); }
+.activity-months { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: .85rem; }
+.activity-month-card { min-width: 0; padding: .9rem; border: 1px solid var(--card-b); border-radius: 15px; background: rgba(255,255,255,.025); transition: transform .22s ease, border-color .22s ease, background .22s ease; animation: activityMonthIn .5s both; }
+.activity-month-card:hover { transform: translateY(-3px); border-color: var(--main); background: rgba(255,255,255,.055); }
+.activity-month-head { display: flex; align-items: flex-start; justify-content: space-between; gap: .4rem; margin-bottom: .8rem; }
+.activity-month-head h4 { font-size: .88rem; margin: 0 0 .15rem; }
+.activity-month-head small { color: var(--sub); font-size: .7rem; }
+.activity-month-head strong { color: var(--main); font-size: .75rem; white-space: nowrap; }
+.activity-month-grid { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 5px; }
+.activity-weekday { color: var(--sub); text-align: center; font-size: .62rem; line-height: 1.2; padding-bottom: .15rem; }
+.activity-day { min-width: 0; aspect-ratio: 1; display: grid; place-items: center; border-radius: 5px; background: var(--card-b); color: var(--sub); font-size: .62rem; line-height: 1; transition: transform .16s ease, box-shadow .16s ease, background .2s ease; animation: activityCellIn .38s both; animation-delay: calc(var(--day-index, 0) * 8ms); }
+.activity-day.empty { visibility: hidden; }
+.activity-day.future { opacity: .22; }
+.activity-day:not(.empty):not(.future):hover { transform: scale(1.18); box-shadow: 0 0 0 2px var(--main); z-index: 1; }
+.activity-day.l1, .activity-legend i.l1 { background: color-mix(in srgb, var(--main) 28%, transparent); color: var(--text); }
+.activity-day.l2, .activity-legend i.l2 { background: color-mix(in srgb, var(--main) 48%, transparent); color: var(--text); }
+.activity-day.l3, .activity-legend i.l3 { background: color-mix(in srgb, var(--main) 72%, transparent); color: var(--main-ink); }
+.activity-day.l4, .activity-legend i.l4 { background: var(--main); color: var(--main-ink); }
+@keyframes activityMonthIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes activityCellIn { from { opacity: 0; transform: scale(.72); } to { opacity: 1; transform: scale(1); } }
+@media (max-width: 900px) { .activity-months { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (max-width: 560px) {
+  .activity-months { grid-template-columns: 1fr; }
+  .activity-calendar-title { flex-direction: column; }
+  .activity-month-grid { gap: 6px; }
+  .activity-day { font-size: .7rem; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .activity-month-card, .activity-day { animation: none !important; transition: none !important; }
+}
