@@ -48,43 +48,52 @@ export async function render(root) {
     chart(a1, { labels: days.map(d => d[0]), series: [{ name: 'Tests', data: days.map(d => d[1].tests), color: '--main', kind: 'bars', digits: 0 }] });
     chart(a2, { labels: weeks.map(d => d[0]), series: [{ name: 'Tests', data: weeks.map(d => d[1]), color: '#6F8BFF', kind: 'bars', digits: 0 }] });
     chart(a3, { labels: months.map(d => d[0]), series: [{ name: 'Tests', data: months.map(d => d[1]), color: '--main', kind: 'bars', digits: 0 }] });
-    // Monthly activity calendar: one animated mini-calendar per month (last 12 months).
-    const monthCards = h('div', { class: 'activity-months', 'aria-label': 'Monthly activity calendars' });
-    const weekdayNames = ['S', 'M', 'T', 'W', 'T', 'F', 'S'];
+    // GitHub-style contribution heatmaps, separated month by month.
+    const monthCards = h('div', { class: 'activity-months', 'aria-label': 'Monthly typing activity calendars' });
+    const weekdayLabels = ['S', 'M', 'T', 'W', 'T', 'F', 'S'];
     for (let offset = 11; offset >= 0; offset--) {
       const first = new Date(now.getFullYear(), now.getMonth() - offset, 1);
       const year = first.getFullYear(), month = first.getMonth();
       const monthKey = year + '-' + String(month + 1).padStart(2, '0');
       const daysInMonth = new Date(year, month + 1, 0).getDate();
-      const monthEntries = Object.entries(st.days).filter(([k]) => k.startsWith(monthKey));
+      const monthEntries = Object.entries(st.days).filter(([key]) => key.startsWith(monthKey));
       const totalTests = monthEntries.reduce((sum, [, value]) => sum + (value.tests || 0), 0);
       const activeDays = monthEntries.filter(([, value]) => value.tests > 0).length;
-      const monthGrid = h('div', { class: 'activity-month-grid' });
-      weekdayNames.forEach(day => monthGrid.append(h('span', { class: 'activity-weekday', 'aria-hidden': 'true' }, day)));
-      for (let blank = 0; blank < first.getDay(); blank++) monthGrid.append(h('span', { class: 'activity-day empty', 'aria-hidden': 'true' }));
+      const weekCount = Math.ceil((first.getDay() + daysInMonth) / 7);
+      const heatmap = h('div', { class: 'activity-month-heatmap' });
+      const weekdayColumn = h('div', { class: 'activity-week-labels', 'aria-hidden': 'true' });
+      weekdayLabels.forEach((day, index) => weekdayColumn.append(h('span', { class: 'activity-weekday' }, [0, 2, 4, 6].includes(index) ? day : '')));
+      const monthGrid = h('div', {
+        class: 'activity-month-grid',
+        style: 'grid-template-columns:repeat(' + weekCount + ', 13px);grid-template-rows:repeat(7, 13px)'
+      });
       for (let day = 1; day <= daysInMonth; day++) {
         const date = new Date(year, month, day), key = dayKey(date);
         const entry = st.days[key], count = entry ? entry.tests : 0;
         const future = key > dayKey(now);
         const level = count ? Math.min(4, Math.ceil(count / 2)) : 0;
+        const week = Math.floor((first.getDay() + day - 1) / 7);
         monthGrid.append(h('span', {
           class: 'activity-day' + (level ? ' l' + level : '') + (future ? ' future' : ''),
-          title: future ? key : key + ': ' + count + ' tests',
-          'aria-label': future ? key : key + ': ' + count + ' tests',
-          style: '--day-index:' + (day - 1)
-        }, String(day)));
+          title: future ? key : key + ': ' + count + ' typing tests',
+          'aria-label': future ? key : key + ': ' + count + ' typing tests',
+          style: 'grid-column:' + (week + 1) + ';grid-row:' + (date.getDay() + 1) + ';--day-index:' + (day - 1)
+        }));
       }
+      heatmap.append(weekdayColumn, monthGrid);
       const monthName = first.toLocaleDateString(undefined, { month: 'long', year: 'numeric' });
       monthCards.append(h('article', { class: 'activity-month-card' },
         h('div', { class: 'activity-month-head' },
           h('div', {}, h('h4', {}, monthName), h('small', {}, activeDays + ' active days')),
           h('strong', {}, totalTests + ' tests')),
-        monthGrid));
+        heatmap));
     }
     const activityLegend = h('div', { class: 'activity-legend' },
       h('span', {}, 'Less'), ...[0, 1, 2, 3, 4].map(level => h('i', { class: level ? 'l' + level : '' })), h('span', {}, 'More'));
     wrap.append(h('section', { class: 'card activity-calendar-card', style: 'margin-top:1rem' },
-      h('div', { class: 'row spread activity-calendar-title' }, h('div', {}, h('h3', {}, 'Activity calendar'), h('p', { class: 'muted' }, 'Your typing journey, month by month')), activityLegend),
+      h('div', { class: 'row spread activity-calendar-title' },
+        h('div', {}, h('h3', {}, 'Activity calendar'), h('p', { class: 'muted' }, 'Your typing contributions, month by month')),
+        activityLegend),
       monthCards));
     // language & mode & personal bests
     const by = (f) => { const m = {}; ok.forEach(r => { const k = f(r); (m[k] = m[k] || { n: 0, best: 0, sum: 0 }); m[k].n++; m[k].best = Math.max(m[k].best, r.wpm); m[k].sum += r.wpm; }); return m; };
