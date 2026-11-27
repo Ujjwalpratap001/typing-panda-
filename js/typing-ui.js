@@ -27,7 +27,7 @@ export function paintWord(el, eng, i, S, active) {
       if (ok || blind) html += `<span class="ok">${esc(c)}</span>`;
       else if (S.indicateTypos === 'replace') html += `<span class="bad">${esc(typed[k])}</span>`;
       else html += `<span class="bad"${S.indicateTypos === 'below' ? ` data-typo="${esc(typed[k])}"` : ''}>${esc(c)}</span>`;
-    } else html += `<span>${esc(c)}</span>`;
+    } else html += `<span${isCur && k === typed.length ? ' class="current-char"' : ''}>${esc(c)}</span>`;
   }
   if (!zen && typed.length > target.length && !S.hideExtra) for (let k = target.length; k < typed.length; k++) html += `<span class="${blind ? 'ok' : 'extra'}">${esc(typed[k])}</span>`;
   el.innerHTML = html;
