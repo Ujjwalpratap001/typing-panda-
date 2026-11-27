@@ -60,7 +60,7 @@ export const SCHEMA = [
   { key: 'bgBlur', cat: 'appearance', label: 'Background blur', desc: '', type: 'range', def: 0, min: 0, max: 20, step: 1 },
   { key: 'reduceMotion', cat: 'appearance', label: 'Reduce motion', desc: 'Turn off animations (also follows your system setting).', type: 'toggle', def: false },
 
-  { key: 'visualStyle', cat: 'theme', label: 'Interface style', desc: 'Choose the visual design of Typing Panda. Glass is the new colorful default; Classic keeps the original interface.', type: 'select', def: 'glass', options: sel(['glass', 'Colorful Glassmorphism'], ['classic', 'Classic Typing Panda']) },
+  { key: 'visualStyle', cat: 'theme', label: 'Interface style', desc: 'Choose your interface style. Colorful Glassmorphism uses richer, high-contrast cyan, purple, orange and teal accents; Classic keeps the original look.', type: 'select', def: 'glass', options: sel(['glass', 'Colorful Glassmorphism'], ['classic', 'Classic Typing Panda']) },
   { key: 'theme', cat: 'theme', label: 'Theme', desc: 'Panda Night (Deep Navy), Panda Light (Off White), Electric (Electric Blue), Auto follows your system, Random picks one per visit.', type: 'select', def: 'dark', options: sel(['dark', 'Panda Night'], ['light', 'Panda Light'], ['electric', 'Electric'], ['auto', 'Auto (system)'], ['random', 'Random'], ['custom', 'Custom colours']) },
   { key: 'cBg', cat: 'theme', label: 'Custom: background', desc: '', type: 'color', def: '#050D2E' },
   { key: 'cText', cat: 'theme', label: 'Custom: text', desc: '', type: 'color', def: '#FFFFFF' },
