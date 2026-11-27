@@ -755,6 +755,3 @@ body.reduce-motion *, body.reduce-motion *::before, body.reduce-motion *::after 
   :root[data-ui-style="glass"] .card,
   :root[data-ui-style="glass"] .btn { transition:none!important; }
 }
-:root[data-ui-style="classic"] .card,
-:root[data-ui-style="classic"] .site-header,
-:root[data-ui-style="classic"] .btn { -webkit-backdrop-filter:initial; backdrop-filter:initial; }
